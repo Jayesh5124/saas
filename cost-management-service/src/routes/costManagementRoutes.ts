@@ -1,26 +1,13 @@
-// import express from 'express';
-// import { createUser, getAllUsers, getUserById, loginUser, updateUser } from '../controllers/userController';
+import { Router } from "express";
+import { CostManagementController } from "../controllers/cost_management_contrller";
 
 
-// const router = express.Router();
+const router = Router();
 
-// router.post('/users', createUser);
-// router.put('/users/:id', updateUser);
-// router.get('/users', getAllUsers); // Route to get all users
-// router.get('/users/:id', getUserById);
-// router.post('/login', loginUser);
-
-// export default router;
-import express from 'express';
-import { createUser, getAllUsers, getUserById, loginUser, updateUser} from '../controllers/cost_management_contrller';
-
-const router = express.Router();
-
-router.post('/users', createUser);
-router.put('/users/:id', updateUser);
-router.get('/users', getAllUsers);
-router.get('/users/:id', getUserById);
-router.post('/users/login', loginUser as any);
-
+router.get('/costs', CostManagementController.getAllCosts);
+router.post('/costs', CostManagementController.addCost);
+router.get('/costs/:id', CostManagementController.getCostById);
+router.put('/costs/:id', CostManagementController.updateCost);
+router.delete('/costs/:id', CostManagementController.deleteCost);
 
 export default router;

@@ -1,43 +1,37 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-import userRoutes from './routes/costManagementRoutes';
-import cors from 'cors';
+import costManagementRoutes from './routes/costManagementRoutes';
 
-
-// Initialize environment variables
 dotenv.config();
-
-// Initialize express app
 const app = express();
 
 // Middleware
+app.use(helmet());
 app.use(express.json());
-app.use(cors({
-    origin: 'http://localhost:3003', // Allow only your frontend's origin
-    methods: 'GET,POST,PUT,DELETE',
-    credentials: true, // Enable credentials if needed
-  }));
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.',
+  })
+);
+
+// MongoDB Connection
+const PORT = process.env.PORT || 3003;
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/saas';
+
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((error) => console.error('MongoDB connection error:', error));
 
 // Routes
-app.use('/api', userRoutes);
+app.use('/api', costManagementRoutes);
 
-// Port configuration
-const PORT = process.env.PORT || 3003;
-const MONGO_URI = process.env.MONGO_URI;
-
-// Connect to MongoDB
-if (!MONGO_URI) {
-    console.error('Error: MONGO_URI is not defined in the environment variables');
-    process.exit(1);
-}
-
-
-mongoose.connect(MONGO_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(error => console.error('MongoDB connection error:', error));
-
-// Start server
+// Start Server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
